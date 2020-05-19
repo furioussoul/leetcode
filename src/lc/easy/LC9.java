@@ -1,4 +1,4 @@
-package easy;
+package lc.easy;
 
 /**
  * 回文数

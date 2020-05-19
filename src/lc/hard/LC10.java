@@ -1,4 +1,4 @@
-package hard;
+package lc.hard;
 
 /**
  * 正则表达式匹配
@@ -53,8 +53,26 @@ package hard;
  */
 public class LC10 {
 
-    public boolean isMatch(String text, String pattern) {
-        return true;
+    public boolean isMatch(String s, String p) {
+
+        if(s.length() == 0 && p.length() == 0){
+            return true;
+        } else if(s.length() != 0 && p.length() == 0){
+            return false;
+        }
+
+        if(p.length()> 1 && p.charAt(1) == '*'){
+            // * 可以回溯
+            if(s.length()==0) {
+                return isMatch(s, p.substring(2));
+            }
+            return (p.charAt(0) == '.' || s.charAt(0) == p.charAt(0)) && isMatch(s.substring(1), p)
+                    || isMatch(s, p.substring(2));
+        } else if(s.length()>0 && (s.charAt(0) == p.charAt(0) || p.charAt(0) == '.')){
+            return isMatch(s.substring(1), p.substring(1));
+        } else {
+            return false;
+        }
     }
 
     public static void main(String[] args) {

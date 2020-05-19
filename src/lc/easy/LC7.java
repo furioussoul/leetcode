@@ -1,4 +1,4 @@
-package easy;
+package lc.easy;
 
 /**
  * 整数反转

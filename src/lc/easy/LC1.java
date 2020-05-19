@@ -1,6 +1,5 @@
-package easy;
+package lc.easy;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,12 +28,8 @@ public class LC1 {
 
     //时间n，空间n
     public int[] twoSum(int[] nums, int target) {
+
         Map<Integer,Integer> map = new HashMap<>();
-
-
-        for (int i = 0; i < nums.length; i++) {
-            map.put(nums[i], i);
-        }
 
         for (int i = 0; i < nums.length; i++) {
             int v = target - nums[i];
@@ -43,14 +38,15 @@ public class LC1 {
                 if(id != i){
                     return new int[]{i, id};
                 }
-
             }
+            map.put(nums[i], i);
         }
         return null;
     }
 
     //时间复杂度n^2，空间1
     public int[] twoSum1(int[] nums, int target) {
+
         for (int i = 0; i < nums.length; i++) {
             for (int j = 0; j < nums.length; j++) {
                 if (i != j && target == nums[i] + nums[j]) {
@@ -59,7 +55,6 @@ public class LC1 {
                 }
             }
         }
-
         return null;
     }
 }

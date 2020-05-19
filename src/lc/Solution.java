@@ -1,3 +1,5 @@
+package lc;
+
 import java.util.*;
 
 class Solution {
@@ -54,7 +56,7 @@ class Solution {
     }
 
     public static void main(String[] args) {
-//        final Solution solution = new Solution();
+//        final lc.Solution solution = new lc.Solution();
 //        final String s = solution.longestDiverseString(7, 1, 0);
 //        System.out.println(s);
         int[] ids;

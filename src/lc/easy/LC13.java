@@ -1,4 +1,4 @@
-package easy;
+package lc.easy;
 
 /**
  * 罗马数字转整数

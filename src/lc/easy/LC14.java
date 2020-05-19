@@ -1,4 +1,4 @@
-package easy;
+package lc.easy;
 
 /**
  * 最长公共前缀

@@ -1,3 +1,5 @@
+package lc;
+
 /**
  * 两数相加
  * <p>
@@ -19,14 +21,6 @@
  * 著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
  */
 public class LC2 {
-
-    public static class ListNode {
-        int val;
-        ListNode next;
-        ListNode(int x) {
-            val = x;
-        }
-    }
 
     //时间n，空间n
     public ListNode addTwoNumbers(ListNode l1, ListNode l2) {

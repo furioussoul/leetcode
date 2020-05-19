@@ -1,5 +1,6 @@
 package lc.easy;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,6 +41,7 @@ public class LC1 {
                 }
             }
             map.put(nums[i], i);
+
         }
         return null;
     }

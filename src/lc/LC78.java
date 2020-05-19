@@ -56,7 +56,7 @@ public class LC78 {
         rs.add(l);
         generate(nums, i+1, sub, rs);
         sub.pop();
-        //上一层级的sub和不选的递归调用sub相同，所以不要再保存一次
+        //上一层级的sub和pop掉的sub相同，所以只保存最左路径
         generate(nums, i+1, sub, rs);
     }
 

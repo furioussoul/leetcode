@@ -1,5 +1,8 @@
 package lc.easy;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 /**
  * 验证回文2
  */

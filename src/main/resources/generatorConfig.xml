@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+    <!--导入属性配置 -->
+    <properties resource="generator.properties"></properties>
+
+    <classPathEntry
+            location="${jdbc.driverLocation}"/>
+
+    <context id="MySqlTables" targetRuntime="MyBatis3">
+        <commentGenerator>
+            <property name="javaFileEncoding" value="UTF-8"/>
+            <property name="suppressAllComments" value="true"/><!-- 是否取消注释 -->
+            <property name="suppressDate" value="false"/> <!-- 是否生成注释代时间戳-->
+            <property name="useActualColumnNames" value="false"/>
+        </commentGenerator>
+
+        <!--配置数据库链接 -->
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://47.114.167.224:3306/miaosha?characterEncoding=utf-8&amp;serverTimezone=UTC&amp;useSSL=false&amp;allowPublicKeyRetrieval=true"
+                        userId="root" password="root">
+            <!-- 针对oracle数据库 -->
+            <!--<property name="remarksReporting" value="true"></property>-->
+            <!-- 针对mysql数据库 -->
+            <property name="useInformationSchema" value="true"></property>
+        </jdbcConnection>
+
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <!--配置实体bean -->
+        <javaModelGenerator targetPackage="miaosha"
+                            targetProject="${project.dir}/src/main/java">
+            <property name="enableSubPackages" value="false"/>
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+
+        <!--配置实体bean的sql.xml -->
+        <sqlMapGenerator targetPackage="mybatis"
+                         targetProject="${project.dir}/src/main/resources">
+            <property name="enableSubPackages" value="false"/>
+        </sqlMapGenerator>
+
+        <!--配置实体map接口（dao） -->
+        <javaClientGenerator type="XMLMAPPER"
+                             targetPackage="miaosha"
+                             targetProject="${project.dir}/src/main/java">
+            <property name="enableSubPackages" value="false"/>
+        </javaClientGenerator>
+
+        <table tableName="GOODS" domainObjectName="GoodsDO"
+               mapperName="GOODSMapper"
+               enableCountByExample="true" enableUpdateByExample="true"
+               enableDeleteByExample="true" enableSelectByExample="true"
+               selectByExampleQueryId="false">
+        </table>
+
+    </context>
+</generatorConfiguration>

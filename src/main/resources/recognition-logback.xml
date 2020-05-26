@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProperty scope="context" name="logName" source="logging.name"/>
+    <springProperty scope="context" name="logPath" source="logging.path"/>
+    <springProperty scope="context" name="logLevel" source="logging.level"/>
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSSZ}] [%thread] [%X{requestID}] %-5level %logger{36} [%line] - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <appender name="rollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logPath}/${logName}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logPath}/${logName}.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!--<maxFileSize>200MB</maxFileSize>-->
+            <!--<maxHistory>7</maxHistory>-->
+            <!--<totalSizeCap>2GB</totalSizeCap>-->
+        </rollingPolicy>
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSSZ}] [%thread] [%X{requestID}] %-5level %logger{36} [%line]- %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <!--log4jdbc -->
+    <logger name="jdbc.sqltiming" level="DEBUG"/>
+    <logger name="org.apache.http" level="WARN" />
+
+    <root level="${logLevel}">
+        <appender-ref ref="console"/>
+        <appender-ref ref="rollingFile"/>
+    </root>
+</configuration>

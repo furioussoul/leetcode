@@ -1,0 +1,53 @@
+spring:
+  application:
+    name: miaosha
+  datasource:
+    datasource-label:
+      name: labelling
+      url: jdbc:mysql://47.114.167.224:3306/miaosha?characterEncoding=utf-8&serverTimezone=UTC&useSSL=false
+      username: root
+      password: root
+      driver-class-name: com.mysql.jdbc.Driver
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      validation-query: SELECT 1 FROM DUAL
+      time-between-eviction-runs-millis: 300000
+      min-evictable-idle-time-millis: 1800000
+      initial-size: 100
+      max-active: 100
+      max-wait: 60000
+      min-idle: 50
+      max-idle: 100
+  mvc:
+    static-path-pattern: /dataset/dict/**
+  resources:
+    static-locations: classpath:/static
+  http:
+    multipart:
+      enabled: true
+      max-file-size: 500MB
+      max-request-size: 500MB
+  redis:
+    database: 0
+    host: 10.128.98.204
+    port: 6379
+
+server:
+  port: 4566
+
+mybatis:
+  mapperLocations:
+    - classpath*:mybatis/*.xml
+    - classpath*:mysql/*.xml
+
+logging:
+  name: test
+  path: var/log
+  level:
+    root: INFO
+    org.hibernate: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.hibernate.type.descriptor.sql.BasicExtractor: TRACE
+  config: classpath:recognition-logback.xml
+

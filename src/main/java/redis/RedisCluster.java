@@ -24,8 +24,8 @@ public class RedisCluster {
                     jedisClusterNode.add(new HostAndPort("47.114.167.224", 8006));
 
                     JedisPoolConfig config = new JedisPoolConfig();
-                    config.setMaxTotal(100);
-                    config.setMaxIdle(10);
+                    config.setMaxTotal(1000);
+                    config.setMaxIdle(20);
                     config.setTestOnBorrow(true);
                     //connectionTimeout：指的是连接一个url的连接等待时间
                     //soTimeout：指的是连接上一个url，获取response的返回等待时间

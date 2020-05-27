@@ -1,102 +1,78 @@
 package miaosha;
 
 import com.alibaba.fastjson.JSONObject;
-import org.apache.http.HttpEntity;
-import org.apache.http.ParseException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
-import redis.RedisCluster;
 
-import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Arrays;
+import java.util.Random;
+import java.util.concurrent.*;
 
 public class Miaoshatest {
+    volatile CountDownLatch latch = new CountDownLatch(1000);
+    ThreadPoolExecutor threadPoolExecutor;
+    @Before
+    public void bef() {
+        threadPoolExecutor = new ThreadPoolExecutor(1000, 1000, 60L, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<Runnable>(100));
+    }
+    @After
+    public void aft() {
+        threadPoolExecutor.shutdown();
+    }
 
     @Test
     public void miaosha() {
 
-        int[] persons = new int[200];
+        //初始化库存=100
+        HttpUtil.httpGet("http://localhost:4566/miaosha/refresh?stock=100");
+
+        int[] persons = new int[1000];
         for (int i = 0; i < persons.length; i++) {
             persons[i] = i;
         }
 
-        RedisCluster.getInstance().set("goods", "100");
-        RedisCluster.getInstance().expire("goods", 60);
+        final int[] p1 = Arrays.copyOfRange(persons, 0, 400);
+        final int[] p2 = Arrays.copyOfRange(persons, 400, 500);
+        final int[] p3 = Arrays.copyOfRange(persons, 500, 1000);
 
-        //初始化库存=100
-        get("http://localhost:4566/miaosha/refresh");
-        AtomicInteger count = new AtomicInteger();
-        CountDownLatch latch = new CountDownLatch(200);
-        //开启200个线程去抢
-        for (int person : persons) {
-            final int p = person;
-            final Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    String r = get("http://localhost:4566/miaosha/miaosha?account=" + p);
-                    if (r.equals("1")) {
-                        r = get("http://localhost:4566/miaosha/order?account=" + p);
-                        if (r.equals("1")) {
-                            count.incrementAndGet();
-                        }
-                    }
-                    latch.countDown();
-                }
-            });
-
-            thread.setName("thread-" + person);
-            thread.start();
-        }
+        base(p1, true);
+        base(p2, false);
+        base(p3, true);
         try {
             latch.await();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        final String r = get("http://localhost:4566/miaosha/view");
+        try {
+            //for 请求超时提前返回
+            Thread.sleep(12000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        final String r = HttpUtil.httpGet("http://localhost:4566/miaosha/view");
         final JSONObject jsonObject = JSONObject.parseObject(r);
-        Assert.assertEquals(count.get(), 100 - (int) jsonObject.get("leftCount"));
+        Assert.assertEquals(0, (int) jsonObject.get("leftCount"));
     }
 
+    private void base(int[] persons, boolean random) {
 
-    public String get(String url) {
-        final CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-        // 创建Get请求
-        HttpGet httpGet = new HttpGet(url);
-
-        // 响应模型
-        CloseableHttpResponse response = null;
-        try {
-            // 由客户端执行(发送)Get请求
-            response = httpClient.execute(httpGet);
-            // 从响应模型中获取响应实体
-            HttpEntity responseEntity = response.getEntity();
-            if (responseEntity != null) {
-                final String r = EntityUtils.toString(responseEntity);
-                System.out.println("响应内容为:" + r);
-                return r;
-            }
-        } catch (ParseException | IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                // 释放资源
-                if (httpClient != null) {
-                    httpClient.close();
+        for (int person : persons) {
+            final int p = person;
+            threadPoolExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    int t = p;
+                    if (random) {
+                        t = new Random().nextInt(1000);
+                    }
+                    HttpUtil.httpGet("http://localhost:4566/miaosha/miaosha?account=" + t);
+                    latch.countDown();
                 }
-                if (response != null) {
-                    response.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            });
         }
 
-        return null;
     }
 }

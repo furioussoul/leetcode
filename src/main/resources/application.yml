@@ -4,7 +4,7 @@ spring:
   datasource:
     datasource-label:
       name: labelling
-      url: jdbc:mysql://47.114.167.224:3306/miaosha?characterEncoding=utf-8&serverTimezone=UTC&useSSL=false
+      url: jdbc:mysql://47.114.167.224:3306/miaosha?characterEncoding=utf-8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
       username: root
       password: root
       driver-class-name: com.mysql.jdbc.Driver
@@ -17,7 +17,7 @@ spring:
       initial-size: 100
       max-active: 100
       max-wait: 60000
-      min-idle: 50
+      min-idle: 100
       max-idle: 100
   mvc:
     static-path-pattern: /dataset/dict/**

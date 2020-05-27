@@ -8,9 +8,7 @@ import redis.RedisCluster;
 import redis.clients.jedis.JedisCluster;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @RestController
@@ -20,7 +18,8 @@ public class MiashaContrller {
     @Resource
     GOODSMapper goodsMapper;
 
-    Map<String, Boolean> soldOut = new HashMap<>();
+    volatile boolean soldOut = true;
+    AtomicInteger count = new AtomicInteger();
 
     @GetMapping(value = "/view")
     public GoodsDO view() {
@@ -28,8 +27,13 @@ public class MiashaContrller {
     }
 
     @GetMapping(value = "/refresh")
-    public int refresh() {
-        soldOut.put("1", false);
+    public int refresh(int stock) {
+        log.info("last count :{}", count.get());
+        count.set(0);
+        soldOut = false;
+        final JedisCluster redis = RedisCluster.getInstance();
+        redis.set("goods", "" + stock);
+        redis.expire("goods", 60);
         final long c = goodsMapper.countByExample(new GoodsDOExample());
         if (c > 0) {
             final GoodsDOExample example = new GoodsDOExample();
@@ -38,17 +42,32 @@ public class MiashaContrller {
         }
         final GoodsDO goodsDO = new GoodsDO();
         goodsDO.setGoodId(1);
-        goodsDO.setLeftCount(100);
+        goodsDO.setLeftCount(stock);
         goodsDO.setName("god");
         return goodsMapper.insertSelective(goodsDO);
     }
 
+    @GetMapping(value = "/miaosha_nocache")
+    public Object miaosha_nocache(String account) {
+        return testNoCache(account);
+    }
+
+
+    /**
+     * 售完、该用户已经下过单则返回失败。
+     * 锁该用户，若redis库存大于0，则减1。若发生异常且stock！=null则加1。
+     * 下单，若失败就查询订单信息，若没有订单信息则库存加一
+     *
+     * @param account
+     * @return
+     */
     @GetMapping(value = "/miaosha")
     public Object miaosha(String account) {
+        Long stock = null;
         final JedisCluster redis = RedisCluster.getInstance();
         try {
 
-            if (soldOut.get("1")) {
+            if (soldOut) {
                 log.info("已售完");
                 return 0;
             }
@@ -61,12 +80,12 @@ public class MiashaContrller {
             }
 
             //设置排队中
-            if (null == redis.set(getMiaoShaWaitKey(account), "", "nx", "ex", 60)) {
-                log.info("排队失败");
+            if (null == redis.set(getMiaoShaWaitKey(account), "", "nx", "ex", 10)) {
+                log.info("在队列中");
                 return 0;
             }
 
-            final Long stock = redis.decr("goods");
+            stock = redis.decr("goods");
             log.info("stock:{}", stock);
             if (stock == null) {
                 log.info("还未开始秒杀");
@@ -75,40 +94,66 @@ public class MiashaContrller {
 
             if (stock < 0) {
                 redis.incr("goods");
-                soldOut.put("1",true);
+                soldOut = true;
                 log.info("已售完");
                 return 0;
             }
         } catch (Exception ex) {
-
+            if (stock != null) {
+                redis.incr("goods");
+            }
+            soldOut = false;
             log.error(ex.getMessage(), ex);
             return 0;
         }
 
         try {
             //创建订单信息
-            final String set = redis.set(getMiaoShaOrderKey(account), "order", "nx", "ex", 60);
+            final String set = redis.set(getMiaoShaOrderKey(account), "order", "nx", "ex", 10);
             if (set == null) {
                 log.info("创建订单失败");
                 throw new RuntimeException("创建订单失败");
             }
-
+            count.incrementAndGet();
             //扣库存
             final int i = goodsMapper.decCount(1);
             if (i == 0) {
                 log.info("扣减库存失败");
+                throw new RuntimeException("扣减库存失败");
             } else {
                 log.info("扣减库存成功");
             }
-        } catch (Exception ex){
+        } catch (Exception ex) {
+            if (null != redis.get(getMiaoShaOrderKey(account))) {
+                redis.incr("goods");
+                soldOut = false;
+            }
+
             log.error(ex.getMessage(), ex);
-            redis.incr("goods");
-            soldOut.put("1", false);
         } finally {
             redis.del(getMiaoShaWaitKey(account));
         }
 
         return 1;
+    }
+
+    private int testNoCache(String account) {
+        final JedisCluster redis = RedisCluster.getInstance();
+        //创建订单信息
+        final String set = redis.set(getMiaoShaOrderKey(account), "order", "nx", "ex", 10);
+        if (set == null) {
+            log.info("创建订单失败");
+            throw new RuntimeException("创建订单失败");
+        }
+
+        final int i = goodsMapper.decCount(1);
+        if (i == 0) {
+            log.info("扣减库存失败");
+        } else {
+            log.info("扣减库存成功");
+        }
+
+        return i;
     }
 
     @GetMapping(value = "/order")

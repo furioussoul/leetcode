@@ -15,7 +15,7 @@ public class Miaoshatest {
     ThreadPoolExecutor threadPoolExecutor;
     @Before
     public void bef() {
-        threadPoolExecutor = new ThreadPoolExecutor(1000, 1000, 60L, TimeUnit.SECONDS,
+        threadPoolExecutor = new ThreadPoolExecutor(100, 1000, 60L, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<Runnable>(100));
     }
     @After

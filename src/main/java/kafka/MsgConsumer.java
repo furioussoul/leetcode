@@ -11,9 +11,9 @@ import java.util.Properties;
 public class MsgConsumer {
 	public static void main(String[] args) {
 		Properties props = new Properties();
-		props.put("bootstrap.servers", "192.168.0.60:9092,192.168.0.60:9093");
+		props.put("bootstrap.servers", "47.114.167.224:9190,47.114.167.224:9191,47.114.167.224:9192");
 		// 消费分组名
-		props.put("group.id", "testGroup");
+		props.put("group.id", "myGroup");
 		// 是否自动提交offset
 		/*props.put("enable.auto.commit", "true");
 		// 自动提交offset的间隔时间

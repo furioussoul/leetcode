@@ -1,9 +1,14 @@
 package kafka;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.KafkaAdminClient;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
@@ -12,7 +17,7 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 
 public class MsgProducer {
 
-	public static final String topic = "foo-topic";
+	public static final String topic = "bar-topic";
 
 	public static void main(String[] args) throws InterruptedException, ExecutionException {
 		Properties props = new Properties();
@@ -20,11 +25,18 @@ public class MsgProducer {
 		props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 		props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
+		final AdminClient adminClient = KafkaAdminClient.create(props);
+		List<NewTopic> list = new ArrayList<>();
+		list.add(new NewTopic(topic,3,(short)3));
+		List<String> topics = new ArrayList<>();
+		adminClient.deleteTopics(topics);
+		adminClient.createTopics(list);
 
-		Producer<String, String> producer = new KafkaProducer<>(props); 
+
+		Producer<String, String> producer = new KafkaProducer<>(props);
 		for (int i = 0; i < 5; i++) {
 			//同步方式发送消息
-			ProducerRecord<String, String> producerRecord = new ProducerRecord<String, String>(topic, 0, Integer.toString(i), Integer.toString(i));
+			ProducerRecord<String, String> producerRecord = new ProducerRecord<String, String>(topic, Integer.toString(i));
 			/*Future<RecordMetadata> result = producer.send(producerRecord);
 			//等待消息发送成功的同步阻塞方法
 			RecordMetadata metadata = result.get();
@@ -36,8 +48,8 @@ public class MsgProducer {
 				@Override
 				public void onCompletion(RecordMetadata metadata, Exception exception) {
 					if (exception != null) {
-						System.err.println("发送消息失败：" + exception.getStackTrace());
-						
+						System.err.println("发送消息失败" );
+						exception.printStackTrace();
 					}
 					if (metadata != null) {
 						System.out.println("异步方式发送消息结果：" + "topic-" + metadata.topic() + "|partition-"

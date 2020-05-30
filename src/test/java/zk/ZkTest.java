@@ -31,8 +31,11 @@ public class ZkTest {
         final ZooKeeper zk = zkClient.zooKeeper;
         String znode = "/foo";
         if(zk.exists(znode, false) == null){
-            zk.create(znode, "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE,CreateMode.PERSISTENT);
+            final String s = zk.create(znode, "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         }
+
+        final String s = zk.create(znode + "/abc", "".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
+        System.out.println("--------------" + s);
         Stat stat = new Stat();
         try {
             zk.getData(znode,zkClient, stat);

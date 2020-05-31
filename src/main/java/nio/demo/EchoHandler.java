@@ -72,7 +72,6 @@ public class EchoHandler implements Runnable {
 	}
 
 	private void handleInput(SelectionKey key) throws IOException {
-
 		if (key.isValid()) {
 			// 处理新接入的请求消息
 			if (key.isAcceptable()) {

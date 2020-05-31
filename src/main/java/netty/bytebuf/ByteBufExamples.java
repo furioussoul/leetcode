@@ -1,12 +1,16 @@
 package netty.bytebuf;
 
 import io.netty.buffer.*;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.ByteProcessor;
 
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.Channel;
+import java.nio.channels.FileChannel;
+import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.util.Random;
 
@@ -31,6 +35,7 @@ public class ByteBufExamples {
     }
     
     public static void byteBufSetGet() {
+
         Charset utf8 = Charset.forName("UTF-8");
         ByteBuf buf = Unpooled.copiedBuffer("Netty in Action rocks!", utf8);
         System.out.println((char)buf.getByte(0));

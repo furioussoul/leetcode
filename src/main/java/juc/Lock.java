@@ -1,4 +1,4 @@
-package main.java.juc;
+package juc;
 
 import sun.misc.Unsafe;
 

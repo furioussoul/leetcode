@@ -17,6 +17,7 @@ public class Server {
                         return new Thread(r);
                     }
                 });
+
         final ServerSocket socket = new ServerSocket(8081);
 
         while(true){

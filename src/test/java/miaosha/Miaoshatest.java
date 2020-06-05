@@ -6,17 +6,21 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.servlet.ReadListener;
+import javax.servlet.Servlet;
+import javax.servlet.ServletRequestListener;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.*;
 
 public class Miaoshatest {
+
     volatile CountDownLatch latch = new CountDownLatch(1000);
     ThreadPoolExecutor threadPoolExecutor;
     @Before
     public void bef() {
         threadPoolExecutor = new ThreadPoolExecutor(100, 1000, 60L, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>(100));
+                new LinkedBlockingQueue<Runnable>(100), new ThreadPoolExecutor.AbortPolicy());
     }
     @After
     public void aft() {

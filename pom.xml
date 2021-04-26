@@ -11,7 +11,7 @@
     <properties>
         <org.springframework.boot.version>1.5.9.RELEASE</org.springframework.boot.version>
         <commons-lang3.version>3.3.2</commons-lang3.version>
-        <commons-io.version>2.4</commons-io.version>
+        <commons-io.version>2.7</commons-io.version>
         <fastjosn.version>1.2.61</fastjosn.version>
         <pagehelper-starter.version>1.2.3</pagehelper-starter.version>
         <pagehelper.version>5.1.4</pagehelper.version>
